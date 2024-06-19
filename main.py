@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 from datetime import datetime
+import sqlite3
+
 url = 'https://www.tfrrs.org/athletes/7820846/Bates/Colin_Thoman.html'
 page = requests.get(url)
 soup = BeautifulSoup(page.text, features="html.parser")
@@ -30,18 +32,37 @@ for table in tables:
     if date_mmddyy:
         data.append((date_mmddyy, event, result))
 
-import sqlite3
 
 conn = sqlite3.connect('tfrrsresults.db')
 cursor = conn.cursor()
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS athletes (
+    athlete_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT
+);
+''')
+
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS race_results (
     id INTEGER PRIMARY KEY,
-    athlete_name TEXT,
-    date TEXT,
+    FOREIGN KEY (athlete_id) REFERENCES athletes (athlete_id)
+    race_date DATE,
     event TEXT,
     result TEXT
 )
 ''')
-conn.commit()
 
+for entry in data:
+    cursor.execute('''
+    INSERT INTO race_results (date, event, result)
+    VALUES (?, ?, ?)
+    ''', entry)
+
+for entry in data:
+    cursor.execute('''
+    INSERT INTO athletes (name)
+    VALUES (?)
+    ''', entry)
+
+conn.commit()
