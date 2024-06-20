@@ -9,7 +9,8 @@ import sqlite3
 imperial_pattern = r'\d+\'\s*\d+(\.\d+)?"'
 # defining what jumps look like in feet and inches to remove those in case I want to expand this to jumps later
 
-athlete_id = 7820847
+athlete_ids = [7820847, 7820846, 7820844]
+# This is toga, colin, jason respectively
 
 
 def scrape_athlete_data(athlete_id):
@@ -67,29 +68,38 @@ def scrape_athlete_data(athlete_id):
         return None, None, None,
 
 
-name, school, data = scrape_athlete_data(athlete_id)
-print(data)
-
-
 conn = sqlite3.connect('tfrrsresults.db')
 cursor = conn.cursor()
 conn.execute('PRAGMA foreign_keys = ON;')
-cursor.execute('DELETE FROM race_results;')
-cursor.execute('DELETE FROM athletes;')
-cursor.execute('DELETE FROM sqlite_sequence WHERE name="race_results";')
-cursor.execute('DELETE FROM sqlite_sequence WHERE name="athletes";')
-# clears existing
+
+
+def clear_database():
+    conn = sqlite3.connect('tfrrsresults.db')
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence';")
+    tables = cursor.fetchall()
+
+    for table in tables:
+        cursor.execute(f"DROP TABLE IF EXISTS {table[0]};")
+
+    conn.commit()
+    conn.close()
+
+clear_database()
 def save_to_db(athlete_id):
+    name, school, data = scrape_athlete_data(athlete_id)
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS athletes (
         athlete_id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        school TEXT NOT NULL
     );
     ''')
     cursor.execute('''
-    INSERT INTO athletes (athlete_id,name)
-    VALUES (?,?)
-    ''', (athlete_id, name))
+    INSERT OR IGNORE INTO athletes (athlete_id,name, school)
+    VALUES (?,?,?)
+    ''', (athlete_id, name,school))
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS race_results ( 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -108,13 +118,14 @@ def save_to_db(athlete_id):
            VALUES (?, ?, ?, ?)
            ''', (athlete_id_in_db, race_date, event, result))
     conn.commit()
-    conn.close
-'''
+    conn.close()
+
+
 for athlete_id in athlete_ids:
     result = scrape_athlete_data(athlete_id)
     if result:
         name, school, data = result
         save_to_db(athlete_id)
     time.sleep(.5)
-'''
+
 
