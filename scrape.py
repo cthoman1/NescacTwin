@@ -2,10 +2,9 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import re
+from cleanresult import remove_imperial
 
 
-imperial_pattern = r'\d+\'\s*\d+(\.\d+)?"'
-# defining what jumps look like in feet and inches to remove those in case I want to expand this to jumps later
 
 
 def scrape_athlete_data(athlete_id):
@@ -29,7 +28,7 @@ def scrape_athlete_data(athlete_id):
                 name = re.sub(r'\([^)]*\)', '', name)
                 name = name.strip().title()
         for table in tables:
-            date_span = table.find_previous('span', style='color:black;font-size:14px;')
+            date_span = table.find('span', style='color:black;font-size:14px;')
 # defining date_span as every instance where the date style is used on text
             if date_span:
                 date_string = date_span.text.strip()
@@ -50,12 +49,9 @@ def scrape_athlete_data(athlete_id):
                     event = event_td.text.strip()
                 else:
                     event = ''
-
                 columns = row.find_all('td')
                 result = columns[1].text.strip() if len(columns) > 1 else ''
-                result = re.sub(imperial_pattern, '', result).strip()
-                result = re.sub('m', '', result)
-                result = re.sub(r'\([^)]*\)', '', result).strip()
+                result = remove_imperial(result)
                 if race_date and event and result:
                     data.append((race_date, event, result))
         return name, school, data
