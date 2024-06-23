@@ -2,7 +2,37 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import re
-from cleanresult import remove_imperial
+from cleaning import remove_imperial
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+school_url = 'https://www.tfrrs.org/teams/tf/ME_college_m_Bates.html?config_hnd=335'
+
+
+def get_athlete_links(school_url):
+    response = requests.get(school_url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    roster_header = soup.find('h3', string='ROSTER')
+    if roster_header:
+        roster_table = roster_header.find_next('table')
+        if roster_table:
+            athlete_urls = []
+            rows = roster_table.find_all('tr')
+            for row in rows:
+                link = row.find('a', href=True)
+                if link:
+                    athlete_url = link['href']
+                    athlete_urls.append(athlete_url)
+            for url in athlete_urls:
+                print(url)
+    else:
+        print('Roster table not found.')
+
+
+get_athlete_links(school_url)
 
 
 def scrape_athlete_data(athlete_id):
