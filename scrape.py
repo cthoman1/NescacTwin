@@ -3,17 +3,10 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from cleaning import remove_imperial
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-school_url = 'https://www.tfrrs.org/teams/tf/ME_college_m_Bates.html?config_hnd=335'
 
 
-def get_athlete_links(school_url):
-    response = requests.get(school_url)
+def get_athlete_links(season_url):
+    response = requests.get(season_url)
     soup = BeautifulSoup(response.content, 'html.parser')
     roster_header = soup.find('h3', string='ROSTER')
     if roster_header:
@@ -29,15 +22,11 @@ def get_athlete_links(school_url):
             for url in athlete_urls:
                 print(url)
     else:
-        print('Roster table not found.')
+        print('Roster table for this season not found.')
 
 
-get_athlete_links(school_url)
-
-
-def scrape_athlete_data(athlete_id):
-    url = f"https://www.tfrrs.org/athletes/{athlete_id}.html"
-    page = requests.get(url)
+def scrape_athlete_data(athlete_url):
+    page = requests.get(athlete_url)
     if page.status_code == 200:
         soup = BeautifulSoup(page.text, features="html.parser")
         tables = soup.find_all('table', class_='table table-hover >')
@@ -46,7 +35,7 @@ def scrape_athlete_data(athlete_id):
         data = []
         name = ''
         school = ''
-        #defining "data" as empty dataset
+# defining "data" as empty dataset
         header_elements = soup.find_all('h3', class_='panel-title')
         for elem in header_elements:
             if 'large-title' not in elem.get('class', []):
@@ -84,4 +73,6 @@ def scrape_athlete_data(athlete_id):
         return name, school, data
     else:
         return None, None, None,
-        print(f"No data found for {athlete_id}")
+        print(f"No data found for {name}")
+
+
