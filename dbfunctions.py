@@ -2,13 +2,13 @@ from scrape import scrape_athlete_data
 import sqlite3
 
 
-conn = sqlite3.connect('tfrrsresults.db')
+conn = sqlite3.connect('nescactf.db')
 cursor = conn.cursor()
 conn.execute('PRAGMA foreign_keys = ON;')
 
 
 def clear_database():
-    conn = sqlite3.connect('tfrrsresults.db')
+    conn = sqlite3.connect('nescactf.db')
     cursor = conn.cursor()
 
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name != 'sqlite_sequence';")
