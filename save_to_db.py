@@ -57,7 +57,5 @@ def save_to_db(athlete_id):
            VALUES (?, ?, ?, ?)
            ''', (athlete_id_in_db, race_date, event, result))
     conn.commit()
-    conn.close()
-
 
 

@@ -5,8 +5,6 @@ import re
 from cleanresult import remove_imperial
 
 
-
-
 def scrape_athlete_data(athlete_id):
     url = f"https://www.tfrrs.org/athletes/{athlete_id}.html"
     page = requests.get(url)
@@ -25,8 +23,7 @@ def scrape_athlete_data(athlete_id):
                 school = elem.text.strip().title()
             else:
                 name = elem.text.strip()
-                name = re.sub(r'\([^)]*\)', '', name)
-                name = name.strip().title()
+                name = re.sub(r'\([^)]*\)', '', name).strip().title()
         for table in tables:
             date_span = table.find('span', style='color:black;font-size:14px;')
 # defining date_span as every instance where the date style is used on text
@@ -57,3 +54,4 @@ def scrape_athlete_data(athlete_id):
         return name, school, data
     else:
         return None, None, None,
+        print(f"No data found for {athlete_id}")
