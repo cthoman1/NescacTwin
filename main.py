@@ -1,5 +1,5 @@
-from save_to_db import save_to_db
-from save_to_db import clear_database
+from dbfunctions import save_to_db
+from dbfunctions import clear_database
 import time
 from scrape import scrape_athlete_data
 
