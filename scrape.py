@@ -12,6 +12,16 @@ from selenium.webdriver.support import expected_conditions as ec
 import time
 
 
+def get_public_ip():
+    try:
+        response = requests.get('https://ifconfig.me')
+        response.raise_for_status()
+        return response.text
+    except requests.RequestException as e:
+        print(f"Error fetching public IP: {e}")
+        return None
+
+
 def get_homepage_url(school):
     chrome_driver_path = '/Users/colinthoman/Downloads/chromedriver-mac-arm64/chromedriver'
     service = Service(chrome_driver_path)
@@ -24,8 +34,8 @@ def get_homepage_url(school):
         first_result = driver.find_element(By.XPATH, '(//h3)[1]/..')
         first_result.click()
         time.sleep(2)
-        school_url = driver.current_url
-        return school_url
+        homepage_url = driver.current_url
+        return homepage_url
     except Exception as e:
         print(f"Error: {e}")
         return None
@@ -35,37 +45,44 @@ def get_homepage_url(school):
 # It will do this by just googling for it and clicking the first link.
 
 
-def get_season_codes(url):
+def get_season_urls(homepage):
     chrome_driver_path = '/Users/colinthoman/Downloads/chromedriver-mac-arm64/chromedriver'
     service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=service)
-    driver.get(url)
+    driver.get(homepage)
+    season_codes = []
+    season_urls = []
     try:
         dropdown_div = WebDriverWait(driver, 10).until(
-            ec.visibility_of_element_located((By.CLASS_NAME, 'col-lg-4.pt-5'))
+            ec.presence_of_element_located((By.CLASS_NAME, 'col-lg-4.pt-5'))
         )
         dropdown = dropdown_div.find_element(By.TAG_NAME, 'select')
         options = dropdown.find_elements(By.TAG_NAME, 'option')
-        season_codes = []
+        last_option = options[-1]
         for option in options:
-            season_code = option.get_attribute('value')
-            if season_code:
-                season_codes.append(season_code)
-        return season_codes
+            try:
+                season_code = option.get_attribute('value')
+                if season_code:
+                    season_codes.append(season_code)
+            except StaleElementReferenceException:
+                continue
+            except Exception as e:
+                print(f"Error during iteration: {type(e).__name__}")
+                continue
+        last_option.click()
+        earliest_season_url = driver.current_url
+        season_code_pattern = r'(hnd=)\d+'
+        for season_code in season_codes:
+            season_url = re.sub(season_code_pattern, 'hnd='+season_code, earliest_season_url)
+            season_urls.append(season_url)
+        return season_urls
     except Exception as e:
         print(f"Error: {e}")
-    finally:
-        driver.quit()
+    driver.quit()
 
 # This function takes the school's results homepage as an input and returns a list of the season codes as an output.
 # A list of season URLs can be made from this list of codes.
 
-
-'''
-def get_season_urls(season_code):
-    
-# This function will take season codes and maybe also school name as an input and return a list of season URLs.
-'''
 
 
 def get_athlete_urls(season_url):
