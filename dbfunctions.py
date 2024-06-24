@@ -1,7 +1,6 @@
 from scrape import scrape_athlete_data
 import sqlite3
 
-
 conn = sqlite3.connect('nescactf.db')
 cursor = conn.cursor()
 conn.execute('PRAGMA foreign_keys = ON;')
@@ -19,9 +18,7 @@ def clear_database():
 
     conn.commit()
     conn.close()
-
-
-clear_database()
+# This just clears the database to avoid duplicates.
 
 
 def save_to_db(athlete_id):
@@ -57,5 +54,7 @@ def save_to_db(athlete_id):
            VALUES (?, ?, ?, ?)
            ''', (athlete_id_in_db, race_date, event, result))
     conn.commit()
-
+# This function is designed to take data from the scrape_athlete_data function and put it into the nescactf.db file.
+# It creates the race_results table as well as the athletes table.
+# The race_results table tabulates race results and the athletes table assigns a key to each athlete in the db.
 

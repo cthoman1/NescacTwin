@@ -3,7 +3,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-from scrape import get_athlete_links
+import bs4
+import requests
+from bs4 import BeautifulSoup
 
 school_url = 'https://www.tfrrs.org/teams/tf/ME_college_m_Bates.html?config_hnd=335'
 
@@ -30,7 +32,3 @@ def get_season_codes(url):
     finally:
         driver.quit()
 
-
-def get_season_url(state_abbr,gender_abbr,school,season_code):
-    season_url = f'https://www.tfrrs.org/teams/tf/{state_abbr}_college_{gender_abbr}_{school}.html?config_hnd={season_code}'
-    return season_url

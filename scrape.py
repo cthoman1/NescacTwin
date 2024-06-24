@@ -3,9 +3,45 @@ import requests
 from bs4 import BeautifulSoup
 import re
 from cleaning import remove_imperial
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+
+def get_homepage_url(school):
+# The idea here will be to make a webdriver script that gets the homepage from the school name.
+# It will do this by just googling for it and clicking the first link.
+
+def get_season_codes(url):
+    chrome_driver_path = '/Users/colinthoman/Downloads/chromedriver-mac-arm64/chromedriver'
+    service = Service(chrome_driver_path)
+    driver = webdriver.Chrome(service=service)
+    driver.get(url)
+    try:
+        dropdown_div = WebDriverWait(driver, 10).until(
+            ec.visibility_of_element_located((By.CLASS_NAME, 'col-lg-4.pt-5'))
+        )
+        dropdown = dropdown_div.find_element(By.TAG_NAME, 'select')
+        options = dropdown.find_elements(By.TAG_NAME, 'option')
+        season_codes = []
+        for option in options:
+            season_code = option.get_attribute('value')
+            if season_code:
+                season_codes.append(season_code)
+        return season_codes
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        driver.quit()
+# This function takes the school's results homepage as an input and returns a list of the season codes as an output.
+# A list of season URLs can be made from this list of codes.
+
+def get_season_urls(season_code):
+# This function will take season codes and maybe also school name as an input and return a list of season URLs.
 
 
-def get_athlete_links(season_url):
+def get_athlete_urls(season_url):
     response = requests.get(season_url)
     soup = BeautifulSoup(response.content, 'html.parser')
     roster_header = soup.find('h3', string='ROSTER')
@@ -23,6 +59,7 @@ def get_athlete_links(season_url):
                 print(url)
     else:
         print('Roster table for this season not found.')
+# This function takes the landing page for a particular season and returns a list of URLs for each individual athlete.
 
 
 def scrape_athlete_data(athlete_url):
@@ -74,5 +111,7 @@ def scrape_athlete_data(athlete_url):
     else:
         return None, None, None,
         print(f"No data found for {name}")
+# This function takes an athlete's results page and returns their name, school, and race results.
+# The function will also clean the result somewhat using functions from cleaning.py
 
 
