@@ -2,33 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
-import bs4
-import requests
-from bs4 import BeautifulSoup
-
-school_url = 'https://www.tfrrs.org/teams/tf/ME_college_m_Bates.html?config_hnd=335'
+import time
 
 
-def get_season_codes(url):
-    chrome_driver_path = '/Users/colinthoman/Downloads/chromedriver-mac-arm64/chromedriver'
-    service = Service(chrome_driver_path)
-    driver = webdriver.Chrome(service=service)
-    driver.get(url)
-    try:
-        dropdown_div = WebDriverWait(driver, 10).until(
-            ec.visibility_of_element_located((By.CLASS_NAME, 'col-lg-4.pt-5'))
-        )
-        dropdown = dropdown_div.find_element(By.TAG_NAME, 'select')
-        options = dropdown.find_elements(By.TAG_NAME, 'option')
-        season_codes = []
-        for option in options:
-            season_code = option.get_attribute('value')
-            if season_code:
-                season_codes.append(season_code)
-        return season_codes
-    except Exception as e:
-        print(f"Error: {e}")
-    finally:
-        driver.quit()
 
+# The idea here will be to make a webdriver script that gets the homepage from the school name.
+# It will do this by just googling for it and clicking the first link.
+
+
+print(get_homepage_url('Bates'))

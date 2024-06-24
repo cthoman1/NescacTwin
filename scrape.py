@@ -7,11 +7,33 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
+import time
+
 
 def get_homepage_url(school):
+    chrome_driver_path = '/Users/colinthoman/Downloads/chromedriver-mac-arm64/chromedriver'
+    service = Service(chrome_driver_path)
+    driver = webdriver.Chrome(service=service)
+    try:
+        driver.get('https://www.google.com')
+        search_box = driver.find_element(By.NAME, 'q')
+        search_box.send_keys(f'{school} tfrrs' + Keys.RETURN)
+        time.sleep(2)
+        first_result = driver.find_element(By.XPATH, '(//h3)[1]/..')
+        first_result.click()
+        time.sleep(2)
+        school_url = driver.current_url
+        return school_url
+    except Exception as e:
+        print(f"Error: {e}")
+        return None
+    finally:
+        driver.quit()
 # The idea here will be to make a webdriver script that gets the homepage from the school name.
 # It will do this by just googling for it and clicking the first link.
+
 
 def get_season_codes(url):
     chrome_driver_path = '/Users/colinthoman/Downloads/chromedriver-mac-arm64/chromedriver'
@@ -34,11 +56,16 @@ def get_season_codes(url):
         print(f"Error: {e}")
     finally:
         driver.quit()
+
 # This function takes the school's results homepage as an input and returns a list of the season codes as an output.
 # A list of season URLs can be made from this list of codes.
 
+
+'''
 def get_season_urls(season_code):
+    
 # This function will take season codes and maybe also school name as an input and return a list of season URLs.
+'''
 
 
 def get_athlete_urls(season_url):
@@ -109,8 +136,7 @@ def scrape_athlete_data(athlete_url):
                     data.append((race_date, event, result))
         return name, school, data
     else:
-        return None, None, None,
-        print(f"No data found for {name}")
+        print(f"Error occurred on athlete_url {athlete_url}")
 # This function takes an athlete's results page and returns their name, school, and race results.
 # The function will also clean the result somewhat using functions from cleaning.py
 
