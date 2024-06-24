@@ -19,6 +19,6 @@ for school in schools:
     season_urls = []
     for homepage_url in homepage_urls:
         season_urls.append(get_season_urls(homepage_url))
+        athlete_urls = []
 
-print(season_urls)
 

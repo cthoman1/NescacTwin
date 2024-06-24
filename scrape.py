@@ -10,6 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as ec
 import time
+from selenium.common.exceptions import StaleElementReferenceException
+from urllib.parse import urljoin
+from url_normalize import url_normalize
 
 
 def get_public_ip():
@@ -20,6 +23,7 @@ def get_public_ip():
     except requests.RequestException as e:
         print(f"Error fetching public IP: {e}")
         return None
+# This just tells me what my publicly facing IP is.
 
 
 def get_homepage_url(school):
@@ -79,30 +83,28 @@ def get_season_urls(homepage):
     except Exception as e:
         print(f"Error: {e}")
     driver.quit()
-
 # This function takes the school's results homepage as an input and returns a list of the season codes as an output.
 # A list of season URLs can be made from this list of codes.
-
 
 
 def get_athlete_urls(season_url):
     response = requests.get(season_url)
     soup = BeautifulSoup(response.content, 'html.parser')
     roster_header = soup.find('h3', string='ROSTER')
+    athlete_urls = []
     if roster_header:
         roster_table = roster_header.find_next('table')
         if roster_table:
-            athlete_urls = []
             rows = roster_table.find_all('tr')
             for row in rows:
                 link = row.find('a', href=True)
                 if link:
-                    athlete_url = link['href']
+                    athlete_url = url_normalize(urljoin('https://www.tfrrs.org/', link['href']))
                     athlete_urls.append(athlete_url)
-            for url in athlete_urls:
-                print(url)
     else:
-        print('Roster table for this season not found.')
+        print(f'Roster table for {season_url} not found.')
+    return athlete_urls
+
 # This function takes the landing page for a particular season and returns a list of URLs for each individual athlete.
 
 
