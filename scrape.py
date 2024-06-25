@@ -32,6 +32,8 @@ def get_homepage_url(school):
     driver = webdriver.Chrome(service=service)
     try:
         driver.get('https://www.google.com')
+        time.sleep(10)
+        # In case there is a Captcha
         search_box = driver.find_element(By.NAME, 'q')
         search_box.send_keys(f'{school} tfrrs' + Keys.RETURN)
         time.sleep(2)
@@ -159,4 +161,12 @@ def scrape_athlete_data(athlete_url):
 # This function takes an athlete's results page and returns their name, school, and race results.
 # The function will also clean the result somewhat using functions from cleaning.py
 
+
+def extract_athlete_id(url):
+    pattern = r'athletes/(\d+)/'
+    match = re.search(pattern, url)
+    if match:
+        return match.group(1)
+    else:
+        return None
 

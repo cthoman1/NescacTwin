@@ -10,3 +10,11 @@ def remove_imperial(result):
     result = re.sub(r'\([^)]*\)', '', result).strip()
     return result
 
+
+def time_to_seconds(time_str):
+    if ':' in time_str:
+        minutes, seconds = time_str.split(':')
+        total_seconds = int(minutes) * 60 + float(seconds)
+    return total_seconds
+
+

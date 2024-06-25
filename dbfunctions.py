@@ -1,4 +1,5 @@
 from scrape import scrape_athlete_data
+from scrape import extract_athlete_id
 import sqlite3
 
 conn = sqlite3.connect('nescactf.db')
@@ -21,9 +22,9 @@ def clear_database():
 # This just clears the database to avoid duplicates.
 
 
-def save_to_db(athlete_id):
-    name, school, data = scrape_athlete_data(athlete_id)
-    # print(f"Scraped data for athlete_id {athlete_id}: {name}, {school}, {data}")
+def save_to_db(athlete_url):
+    name, school, data = scrape_athlete_data(athlete_url)
+    athlete_id = extract_athlete_id(athlete_url)
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS athletes (
         athlete_id INTEGER PRIMARY KEY AUTOINCREMENT,
