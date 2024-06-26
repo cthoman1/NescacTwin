@@ -1,17 +1,14 @@
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
-from selenium.webdriver.chrome.service import Service
-from selenium.common.exceptions import StaleElementReferenceException
-from selenium.webdriver.common.by import By
+from dbfunctions import save_to_db
+from dbfunctions import clear_database
 import time
-import re
+import random
+from scrape import get_homepage_url
+from scrape import get_season_urls
 from scrape import get_athlete_urls
-athlete_urls = []
-season_urls = ['https://www.tfrrs.org/teams/tf/ME_college_m_Bates.html?config_hnd=335', 'https://www.tfrrs.org/teams/tf/ME_college_m_Bates.html?config_hnd=292']
-for season_url in season_urls:
-    athlete_urls.append(get_athlete_urls(season_url))
+from scrape import scrape_athlete_data
+from scrape import get_athlete_urls
+from dbfunctions import save_to_db
 
-print(athlete_urls)
 
+save_to_db('https://www.tfrrs.org/athletes/7912185/Bates/Aidan_Rooney')
+# time.sleep(random.uniform(10, 20))

@@ -1,6 +1,7 @@
 from scrape import scrape_athlete_data
 from scrape import extract_athlete_id
 import sqlite3
+from cleaning import event_codes
 
 conn = sqlite3.connect('nescactf.db')
 cursor = conn.cursor()
@@ -59,3 +60,31 @@ def save_to_db(athlete_url):
 # It creates the race_results table as well as the athletes table.
 # The race_results table tabulates race results and the athletes table assigns a key to each athlete in the db.
 
+
+def update_event_names_to_codes(db_path):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    # Update event codes
+    for event_name, event_code in event_codes.items():
+        cursor.execute('''
+               UPDATE race_results
+               SET event = ?
+               WHERE event = ?
+           ''', (int(event_code), event_name))
+    conn.commit()
+    conn.close()
+
+
+def create_event_code_reference_table(db_path):
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS events (
+            event_name TEXT PRIMARY KEY,
+            event_code INTEGER NOT NULL
+        )
+    ''')
+    for event_name, event_code in event_codes.items():
+        cursor.execute("INSERT OR REPLACE INTO events (event_name, event_code) VALUES (?, ?)", (event_name, int(event_code)))
+    conn.commit()
+    conn.close()
