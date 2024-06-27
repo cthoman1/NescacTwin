@@ -10,12 +10,12 @@ from dbfunctions import update_event_names_to_codes
 from dbfunctions import create_event_code_reference_table
 
 
-public_ip = get_public_ip()
-print(f'Public IP:{public_ip}')
+# public_ip = get_public_ip()
+# print(f'Public IP:{public_ip}')
 
-clear_database()
-
-schools = ['Bates','Bowdoin','Colby']
+# clear_database()
+'''
+schools = ['Colby']
 homepage_urls = []
 for school in schools:
     homepage_urls.append(get_homepage_url(school))
@@ -29,7 +29,7 @@ for school in schools:
         for athlete_url in athlete_urls:
             save_to_db(athlete_url)
             time.sleep(random.uniform(10, 20))
-print("Operation was completed without any errors.")
+print("Operation was completed without any errors.")'''
 
 create_event_code_reference_table('nescactf.db')
 update_event_names_to_codes('nescactf.db')
