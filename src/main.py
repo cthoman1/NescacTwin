@@ -29,7 +29,9 @@ for school in schools:
         for athlete_url in athlete_urls:
             save_to_db(athlete_url)
             time.sleep(random.uniform(10, 20))
-print("Operation was completed without any errors.")'''
+print("Operation was completed without any errors.")
+'''
 
-create_event_code_reference_table('nescactf.db')
-update_event_names_to_codes('nescactf.db')
+# create_event_code_reference_table('nescactf.db')
+update_event_names_to_codes('/Users/colinthoman/Desktop/racetimeanalytics/data/raw/nescactf.db')
+

@@ -3,10 +3,6 @@ from scrape import extract_athlete_id
 import sqlite3
 from cleaning import event_codes
 
-conn = sqlite3.connect('nescactf.db')
-cursor = conn.cursor()
-conn.execute('PRAGMA foreign_keys = ON;')
-
 
 def clear_database():
     conn = sqlite3.connect('nescactf.db')

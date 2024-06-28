@@ -1,12 +1,19 @@
 setwd("/Users/colinthoman/Desktop/racetimeanalytics")
 load("data/processed/race_results.rdata")
 load("data/processed/events.rdata")
+load("data/processed/athletes.rdata")
+library(dplyr)
+
+cleaned_race_results <- race_results %>%
+  select(-id)
+# Removes the primary key "id" column, making it easier to spot duplicates.
+# Duplicates may arise from running the Python script for a school multiple times.
 
 contains_only_letters <- function(x) {
   grepl("^[[:alpha:]]+$", x)  # Matches strings with only letters
 }
-race_results <- race_results[!sapply(race_results$result, contains_only_letters), ]
-race_results <- race_results[!is.na(race_results$result) & trimws(race_results$result) != "", ]
+cleaned_race_results <- cleaned_race_results[!sapply(cleaned_race_results$result, contains_only_letters), ]
+cleaned_race_results <- cleaned_race_results[!is.na(cleaned_race_results$result) & trimws(cleaned_race_results$result) != "", ]
 # Removes DNFs, DQs, DNS's, NMs (Fouls), and NHs.
 
 remove_letters <- function(text) {
@@ -14,7 +21,7 @@ remove_letters <- function(text) {
   cleaned_text <- gsub("[[:alpha:]]", "", text)
   return(cleaned_text)
 }
-race_results$result <- remove_letters(race_results$result)
+cleaned_race_results$result <- remove_letters(cleaned_race_results$result)
 # Removes letters that found their way into results. 
 
 time_to_seconds <- function(time_str) {
@@ -27,9 +34,9 @@ time_to_seconds <- function(time_str) {
   }
   return(time_str)
 }
-for (i in seq_along(race_results$result)) {
-  race_results$result[i] <- trimws(race_results$result[i])
-  race_results$result[i] <- time_to_seconds(race_results$result[i])
+for (i in seq_along(cleaned_race_results$result)) {
+  cleaned_race_results$result[i] <- trimws(cleaned_race_results$result[i])
+  cleaned_race_results$result[i] <- time_to_seconds(cleaned_race_results$result[i])
 }
 # Changes all times to seconds only. 
 
@@ -37,10 +44,28 @@ remove_trailing_dots <- function(vec) {
   cleaned_vec <- sub("\\.$", "", vec)
   return(cleaned_vec)
 }
-race_results$result <- remove_trailing_dots(race_results$result)
+cleaned_race_results$result <- remove_trailing_dots(cleaned_race_results$result)
 # Removes trailing dots
 
-race_results$result <- as.numeric(race_results$result)
-race_results$race_date <- as.Date(race_results$race_date, format = "%m/%d/%y")
+cleaned_race_results$result <- as.numeric(cleaned_race_results$result)
+cleaned_race_results$race_date <- as.Date(cleaned_race_results$race_date, format = "%m/%d/%y")
+cleaned_race_results$event <- as.numeric(cleaned_race_results$event)
+# Assigns the proper data classes to race results, event codes, and dates.
+
+cleaned_athletes <- athletes
+cleaned_athletes$name<- gsub("  ", " ", cleaned_athletes$name)
+#Fixes double spaces in athlete names
+
+cleaned_race_results <- cleaned_race_results %>%
+  distinct()
+# Removes duplicates from the results table.
+
+cleaned_events <- events
+#Doesn't seem like there is any cleaning to do on the events file. 
+
+save(cleaned_race_results, file = "data/cleaned/cleaned_race_results.rdata")
+save(cleaned_athletes, file = "data/cleaned/cleaned_athletes.rdata")
+save(events, file = "data/cleaned/cleaned_events.rdata")
+
 
 
