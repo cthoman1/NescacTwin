@@ -11,6 +11,7 @@ if (exists('filtered_df')) {
 if (exists('athlete_event_dfs')) {
 rm(athlete_event_dfs)
 }
+#Just deleting the databases if they already exist so that I can run the script.
 
 if (exists('filtered_df')) {
   print("Filtered database already exists.")
