@@ -1,6 +1,6 @@
 library(DBI)
 library(RSQLite)
-
+rm(list= ls())
 if (!dir.exists("data/processed")) {
   dir.create("data/processed", recursive = TRUE)
 }

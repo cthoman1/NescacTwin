@@ -9,21 +9,32 @@ cleaned_race_results <- race_results %>%
 # Removes the primary key "id" column, making it easier to spot duplicates.
 # Duplicates may arise from running the Python script for a school multiple times.
 
-contains_only_letters <- function(x) {
-  grepl("^[[:alpha:]]+$", x)  # Matches strings with only letters
+contains_number <- function(x) {
+  grepl("[0-9]", x)
 }
-cleaned_race_results <- cleaned_race_results[!sapply(cleaned_race_results$result, contains_only_letters), ]
-cleaned_race_results <- cleaned_race_results[!is.na(cleaned_race_results$result) & trimws(cleaned_race_results$result) != "", ]
-# Removes DNFs, DQs, DNS's, NMs (Fouls), and NHs.
-
 remove_letters <- function(text) {
-  # Remove all letters from the input text using regex
   cleaned_text <- gsub("[[:alpha:]]", "", text)
   return(cleaned_text)
 }
-cleaned_race_results$result <- remove_letters(cleaned_race_results$result)
-# Removes letters that found their way into results. 
+# Remove all letters from the input text using regex
+for (i in seq_along(race_results$result)) {
+  if (contains_number(race_results$result[i])) {
+    race_results$result[i] <- remove_letters(race_results$result[i])
+  }
+}
+# Removes letters that found their way into numeric results (uncommon error). 
 
+extract_first_four_letters <- function(x) {
+  if (grepl("^[[:alpha:]]", x)) {
+    return(substr(x, 1, 4))
+  } else {
+    return(x)  # Return the original string if it doesn't contain only letters
+  }
+}
+for (i in seq_along(cleaned_race_results$result)) {
+  cleaned_race_results$result[i] <- extract_first_four_letters(cleaned_race_results$result[i])
+}
+#This will fix the odd formatting for certain "Foul" and "NM" results.
 time_to_seconds <- function(time_str) {
   # Check if the input time string contains a colon
   if (grepl(":", time_str)) {
@@ -47,9 +58,8 @@ remove_trailing_dots <- function(vec) {
 cleaned_race_results$result <- remove_trailing_dots(cleaned_race_results$result)
 # Removes trailing dots
 
-cleaned_race_results$result <- as.numeric(cleaned_race_results$result)
 cleaned_race_results$race_date <- as.Date(cleaned_race_results$race_date, format = "%m/%d/%y")
-cleaned_race_results$event <- as.numeric(cleaned_race_results$event)
+cleaned_race_results$event <- as.integer(cleaned_race_results$event)
 # Assigns the proper data classes to race results, event codes, and dates.
 
 cleaned_athletes <- athletes
