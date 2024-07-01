@@ -19,16 +19,16 @@ remove_letters <- function(text) {
 # Remove all letters from the input text using regex
 for (i in seq_along(race_results$result)) {
   if (contains_number(race_results$result[i])) {
-    race_results$result[i] <- remove_letters(race_results$result[i])
+    cleaned_race_results$result[i] <- remove_letters(cleaned_race_results$result[i])
   }
 }
-# Removes letters that found their way into numeric results (uncommon error). 
+# Removes letters that found their way into numeric results (happens on sprints). 
 
 extract_first_four_letters <- function(x) {
   if (grepl("^[[:alpha:]]", x)) {
     return(substr(x, 1, 4))
   } else {
-    return(x)  # Return the original string if it doesn't contain only letters
+    return(x)  
   }
 }
 for (i in seq_along(cleaned_race_results$result)) {
