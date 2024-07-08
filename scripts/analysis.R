@@ -63,8 +63,8 @@ compare_trajectory <- function(id1,id2) {
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
     group_by(athlete_id) %>%
-    filter(n() > 2) %>%
     filter(!contains_letters(result)) %>%
+    filter(n() > 2) %>%
     summarize() %>%
     pull("athlete_id")
   if (!(id1 %in% event_subset)) {
@@ -74,28 +74,18 @@ compare_trajectory <- function(id1,id2) {
     event_subset <- data.frame(athlete_id = event_subset, index = NA, dist = NA, pos = NA)
     for (i in seq_along(event_subset$athlete_id)) {
       compare_results <- minimize_distance(
-        athlete_trajectory(i,id2),
+        athlete_trajectory(event_subset$athlete_id[i],id2),
         athlete_trajectory(id1,id2)
       )
       event_subset$index[i] <- as.integer(compare_results[1])
       event_subset$dist[i] <- as.numeric(compare_results[2])
       event_subset$pos[i] <- as.integer(compare_results[3])
-    event_subset %>%
+    closest_trajectories <- event_subset %>%
       arrange(dist) %>%
-      head(10)
+      slice(2:11)
     }
-    return(event_subset)
+    return(closest_trajectories)
   }
 }
 
-compare_trajectory(7820846,13)
-
-
-c <- athlete_trajectory(7820846,10)
-d <-athlete_trajectory(7820844,10)
-
-minimize_distance(c,d)
-
-
-
-
+compare_trajectory(7912170,13)
