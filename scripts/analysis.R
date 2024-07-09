@@ -5,8 +5,6 @@ load("data/cleaned/cleaned_events.rdata")
 library(dplyr)
 library(tidyr)
 library(purrr)
-library(plumber)
-library(plumberDeploy)
 
 contains_letters <- function(result) {
   grepl("[[:alpha:]]", result)
@@ -79,8 +77,7 @@ athlete_trajectory <- function(id1,id2) {
 }
 # This an athlete ID and event code and returns a vector of the athlete's results for that event.
 
-#* @get / trajectories
-#* @serializer json
+
 compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency_bias) {
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
@@ -126,6 +123,5 @@ compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency
 # recency_bias determines to what extent recent events are favored on a power-law scale.
 # It outputs a table of the ten closest non-self trajectories with index, dist, pos, and dists.
 
-plumber::plumb("analysis.R")$run(port=8000)
 
 
