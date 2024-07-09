@@ -4,11 +4,7 @@ source("analysis.R")
 
 #* @apiTitle Race Time Analytics API
 #* @apiDescription API for interacting with race time analytics
-
-
-pr <- plumb("plumber.R")
-pr$run(port = 8000)
-
+options("plumber.port" = 8000)
 
 #* Compare trajectory
 #* @param id1 athlete ID
