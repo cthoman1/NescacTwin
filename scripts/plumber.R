@@ -1,20 +1,25 @@
+setwd("/Users/colinthoman/Desktop/racetimeanalytics/scripts")
 library(plumber)
-library(plumberDeploy)
 source("analysis.R")
 
 #* @apiTitle Race Time Analytics API
 #* @apiDescription API for interacting with race time analytics
 
+
+pr <- plumb("plumber.R")
+pr$run(port = 8000)
+
+
 #* Compare trajectory
 #* @param id1 athlete ID
 #* @param id2 event code
 #* @param first_year start year
-#* @param last_yaer end year
+#* @param last_year end year
 #* @param min_events minimum events
 #* @param recency_bias a recency bias scalar
 #* @get /compare_trajectory
 
-compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency_bias) {
+compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
     group_by(athlete_id) %>%
@@ -33,8 +38,8 @@ compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency
     event_subset <- data.frame(athlete_id = event_subset, index = NA, dist = NA, pos = NA, dists = NA)
     for (i in seq_along(event_subset$athlete_id)) {
       compare_results <- minimize_distance(
-        athlete_trajectory(event_subset$athlete_id[i],id2),
-        athlete_trajectory(id1,id2),
+        athlete_trajectory(event_subset$athlete_id[i],id2)[,2],
+        athlete_trajectory(id1,id2)[,2],
         recency_bias
       )
       event_subset$index[i] <- as.integer(compare_results[1])
@@ -52,10 +57,3 @@ compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency
     # It then sorts them based on distance and takes the top ten (non-self) results.
   }
 }
-
-# This function takes a few inputs.
-# id1 and id2 correspond to athlete_id and event code respectively.
-# first_year and last_year set the time range of athletes surveyed.
-# min_events sets a minimum for length of the vectors compared.
-# recency_bias determines to what extent recent events are favored on a power-law scale.
-# It outputs a table of the ten closest non-self trajectories with index, dist, pos, and dists.

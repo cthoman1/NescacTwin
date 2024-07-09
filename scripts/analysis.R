@@ -70,15 +70,14 @@ athlete_trajectory <- function(id1,id2) {
   trajectory <- cleaned_race_results %>%
     filter(athlete_id == id1 & event == id2) %>%
     arrange(race_date) %>%
-    select(-athlete_id, -athlete_id, -event, -race_date) %>%
+    select(-athlete_id, -athlete_id, -event) %>%
     filter(!contains_letters(result)) %>%
     mutate(result = as.numeric(result))
-  return(trajectory[,1])
+  return(trajectory)
 }
 # This an athlete ID and event code and returns a vector of the athlete's results for that event.
 
-
-compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency_bias) {
+compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
     group_by(athlete_id) %>%
@@ -97,8 +96,8 @@ compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency
     event_subset <- data.frame(athlete_id = event_subset, index = NA, dist = NA, pos = NA, dists = NA)
     for (i in seq_along(event_subset$athlete_id)) {
       compare_results <- minimize_distance(
-        athlete_trajectory(event_subset$athlete_id[i],id2),
-        athlete_trajectory(id1,id2),
+        athlete_trajectory(event_subset$athlete_id[i],id2)[,2],
+        athlete_trajectory(id1,id2)[,2],
         recency_bias
       )
       event_subset$index[i] <- as.integer(compare_results[1])
