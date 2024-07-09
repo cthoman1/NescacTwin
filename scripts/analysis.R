@@ -5,24 +5,36 @@ load("data/cleaned/cleaned_events.rdata")
 library(dplyr)
 library(tidyr)
 library(purrr)
+library(plumber)
+library(plumberDeploy)
 
 contains_letters <- function(result) {
   grepl("[[:alpha:]]", result)
 }
 # Function to determine whether a result contains letters (DQ, DNF, etc).
 
-euclidean_dist <- function(v1, v2) {
+euclidean_dist <- function(v1, v2, recency_bias) {
   if (length(v1) == length(v2)) {
+    n <- length(v1)
+    if (recency_bias != 0) {
+      weights <- (1:n) ^ -recency_bias
+      weights <- weights / sum(weights)
+    } else {
+      weights <- rep(n^-1, n)
+    }
+  
     distance <- sqrt((v1-v2)^2)
-    return(sum(distance))
-  }
-  else {
+    weighted_distance <- distance * weights
+    return(list(weighted_distance, sum(weighted_distance)/n))
+  } else {
     print("The operation could not be completed because the vectors have different lengths.")
   }
 }
 # Finds point-by-point Euclidean distance between two vectors.
+# It also applies a power law distribution based on the recency_bias input.
+# It returns a vector of the point-by-point distances and the average.
 
-minimize_distance <- function(v1,v2) {
+minimize_distance <- function(v1,v2,recency_bias) {
   if (length(v1) >= length(v2)) {
     index <- 1
     V1 <- v1
@@ -36,17 +48,25 @@ minimize_distance <- function(v1,v2) {
   min_length <- length(V2)
   minimum_distance <- Inf
   pos <- 0
+  
   for (i in 1:(length(V1) - length(V2) + 1)) {
-    dist <- euclidean_dist(V2, V1[i:(i + (min_length - 1))])
+    dist <- euclidean_dist(V2, V1[i:(i + (min_length - 1))], recency_bias)[[2]]
     if (dist < minimum_distance) {
       minimum_distance <- dist
       pos <- i
+      dists <- euclidean_dist(V2, V1[i:(i + (min_length - 1))], recency_bias)[[1]]
     }
   }
-  return(list(index,minimum_distance,pos))
+  return(list(index,minimum_distance,pos,dists))
 }
-# This function returns the position on the larger vector at which the smaller vector can be placed to minimize Euclidean distance.
-# It also returns which of the two is the larger.
+# This function takes two vectors and returns a three-item list.
+# It also applies recency bias on a scale of 0 (none) to extreme (3).
+# The recency bias uses a power law distribution.
+# The first item in the list is which of the two is larger. 1 for the first (or for equal lengths), 2 for the second.
+# The second is the summed point-by-point Euclidean distance between the two divided by the number of races on which they're being compared.
+# In effect, the second is the average distance between points in the two vectors.
+# The third is the position on which (if applicable) the smaller vector "fits" into the larger one.
+# The fourth is the point-by-point weighted distances.
 
 athlete_trajectory <- function(id1,id2) {
   trajectory <- cleaned_race_results %>%
@@ -57,35 +77,55 @@ athlete_trajectory <- function(id1,id2) {
     mutate(result = as.numeric(result))
   return(trajectory[,1])
 }
-# Takes an athlete ID and event code and returns a vector of the athlete's results for that event.
+# This an athlete ID and event code and returns a vector of the athlete's results for that event.
 
-compare_trajectory <- function(id1,id2) {
+#* @get / trajectories
+#* @serializer json
+compare_trajectory <- function(id1,id2,first_year, last_year, min_events,recency_bias) {
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
     group_by(athlete_id) %>%
     filter(!contains_letters(result)) %>%
-    filter(n() > 2) %>%
+    filter(n() >= min_events) %>%
+    mutate(year = as.integer(substr(race_date, 1, 4))) %>%
+    select(-race_date) %>%
+    filter(year >= first_year & year <= last_year) %>%
     summarize() %>%
     pull("athlete_id")
+  # This creates 'event_subset', a list of athlete_ids in the set with 3+ non-text results for the event.
   if (!(id1 %in% event_subset)) {
-    print("There are not enough results for the given athlete-event combination (3>) to perform the operation.")
+    print("The athlete ID given does not fit into the parameters given.")
   }
   else {
-    event_subset <- data.frame(athlete_id = event_subset, index = NA, dist = NA, pos = NA)
+    event_subset <- data.frame(athlete_id = event_subset, index = NA, dist = NA, pos = NA, dists = NA)
     for (i in seq_along(event_subset$athlete_id)) {
       compare_results <- minimize_distance(
         athlete_trajectory(event_subset$athlete_id[i],id2),
-        athlete_trajectory(id1,id2)
+        athlete_trajectory(id1,id2),
+        recency_bias
       )
       event_subset$index[i] <- as.integer(compare_results[1])
       event_subset$dist[i] <- as.numeric(compare_results[2])
       event_subset$pos[i] <- as.integer(compare_results[3])
+      event_subset$dists[i] <- as.vector(compare_results[4])
+    # This creates a three-item list for each other athlete in the data set.
+    # The three items are the three outputs from the distance minimization function.
     closest_trajectories <- event_subset %>%
       arrange(dist) %>%
       slice(2:11)
     }
     return(closest_trajectories)
+    # This appends the three outputs from distance minimization to the IDs in 'event_subset'.
+    # It then sorts them based on distance and takes the top ten (non-self) results.
   }
 }
+# This function takes a few inputs.
+# id1 and id2 correspond to athlete_id and event code respectively.
+# first_year and last_year set the time range of athletes surveyed.
+# min_events sets a minimum for length of the vectors compared.
+# recency_bias determines to what extent recent events are favored on a power-law scale.
+# It outputs a table of the ten closest non-self trajectories with index, dist, pos, and dists.
 
-compare_trajectory(7912170,13)
+plumber::plumb("analysis.R")$run(port=8000)
+
+
