@@ -6,9 +6,17 @@ source("analysis.R")
 #* @apiDescription API for interacting with race time analytics
 options("plumber.port" = 8000)
 
+
+#* Names static list
+#* @get /names
+get_names <- function() {
+  return(cleaned_athletes[,2:3])
+}
+
 #* Athlete trajectory
 #* @param id1 athlete ID
 #* @param id2 event code
+#* @get /athlete_trajectory
 athlete_trajectory <- function(id1,id2) {
   trajectory <- cleaned_race_results %>%
     filter(athlete_id == id1 & event == id2) %>%
