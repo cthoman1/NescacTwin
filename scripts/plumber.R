@@ -6,6 +6,20 @@ source("analysis.R")
 #* @apiDescription API for interacting with race time analytics
 options("plumber.port" = 8000)
 
+#* Athlete trajectory
+#* @param id1 athlete ID
+#* @param id2 event code
+athlete_trajectory <- function(id1,id2) {
+  trajectory <- cleaned_race_results %>%
+    filter(athlete_id == id1 & event == id2) %>%
+    arrange(race_date) %>%
+    select(-athlete_id, -athlete_id, -event) %>%
+    filter(!contains_letters(result)) %>%
+    mutate(result = as.numeric(result))
+  return(trajectory)
+}
+
+
 #* Compare trajectory
 #* @param id1 athlete ID
 #* @param id2 event code
@@ -53,3 +67,30 @@ compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_even
     # It then sorts them based on distance and takes the top ten (non-self) results.
   }
 }
+
+#* Name to ID
+#* @param name Name
+#* @get /name_to_id
+name_to_id <- function(name) {
+  match_idx <- match(name, cleaned_athletes$name)
+  if (!is.na(match_idx)) {
+    return(list(cleaned_athletes$athlete_id[match_idx],cleaned_athletes$school[match_idx]))
+  } else {
+    return("Athlete with this name not found in the database") 
+  }
+}
+
+#* ID to name
+#* @param ID ID
+#* @get /id_to_name
+id_to_name <- function(id) {
+  match_idx <- match(id, cleaned_athletes$athlete_id)
+  if (!is.na(match_idx)) {
+    return(cleaned_athletes$name[match_idx])
+  } else {
+    return("Athlete with this ID not found in the database") 
+  }
+}
+
+
+

@@ -122,5 +122,21 @@ compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_even
 # recency_bias determines to what extent recent events are favored on a power-law scale.
 # It outputs a table of the ten closest non-self trajectories with index, dist, pos, and dists.
 
+name_to_id <- function(name) {
+  match_idx <- match(name, cleaned_athletes$name)
+  if (!is.na(match_idx)) {
+    return(list(cleaned_athletes$athlete_id[match_idx],cleaned_athletes$school[match_idx]))
+  } else {
+    return("Athlete with this name not found in the database") 
+  }
+}
 
+id_to_name <- function(id) {
+  match_idx <- match(id, cleaned_athletes$athlete_id)
+  if (!is.na(match_idx)) {
+    return(cleaned_athletes$name[match_idx])
+  } else {
+    return("Athlete with this ID not found in the database") 
+  }
+}
 
