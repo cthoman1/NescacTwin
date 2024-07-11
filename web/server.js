@@ -1,59 +1,36 @@
 // server.js
 
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const cors = require('cors');
 const path = require('path');
+const axios = require('axios');
+
+const app = express();
 const port = 3000;
 
-const server = http.createServer((req, res) => {
-  let filePath = '.' + req.url;
-  if (filePath == './') {
-    filePath = './index.html';
-  }
+app.use(cors());
 
-  const extname = String(path.extname(filePath)).toLowerCase();
-  const mimeTypes = {
-    '.html': 'text/html',
-    '.js': 'text/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpg',
-    '.gif': 'image/gif',
-    '.wav': 'audio/wav',
-    '.mp4': 'video/mp4',
-    '.woff': 'application/font-woff',
-    '.ttf': 'application/font-ttf',
-    '.eot': 'application/vnd.ms-fontobject',
-    '.otf': 'application/font-otf',
-    '.svg': 'application/image/svg+xml'
-  };
+app.listen(port, () => {
+    console.log(`Server is listening on port ${port}`);
+});
 
-  const contentType = mimeTypes[extname] || 'application/octet-stream';
+app.use(express.static(path.join(__dirname)));
 
-  fs.readFile(filePath, (error, content) => {
-    if (error) {
-      if (error.code == 'ENOENT') {
-        fs.readFile('./404.html', (error, content) => {
-          res.writeHead(200, { 'Content-Type': 'text/html' });
-          res.end(content, 'utf-8');
-        });
-      } else {
-        res.writeHead(500);
-        res.end('Sorry, check with the site admin for error: ' + error.code + ' ..\n');
-        res.end();
-      }
-    } else {
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content, 'utf-8');
+app.get('/names', async (req, res) => {
+    try {
+        const response = await axios.get('http://127.0.0.1:8000/names');
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).send('Error fetching data');
     }
-  });
 });
 
-server.listen(port, (error) => {
-  if (error) {
-    console.log('Something went wrong', error);
-  } else {
-    console.log('Server is listening on port ' + port);
-  }
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '404.html'));
 });
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+

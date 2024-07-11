@@ -1,13 +1,14 @@
 # analysis.R
-
 setwd("/Users/colinthoman/Desktop/racetimeanalytics")
 load("data/cleaned/cleaned_race_results.rdata")
 load("data/cleaned/cleaned_athletes.rdata")
 load("data/cleaned/cleaned_events.rdata")
 
+suppressPackageStartupMessages({
 library(dplyr)
 library(tidyr)
 library(purrr)
+})
 
 contains_letters <- function(result) {
   grepl("[[:alpha:]]", result)

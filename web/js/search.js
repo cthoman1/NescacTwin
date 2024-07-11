@@ -1,22 +1,19 @@
-// search.js
-
 let athletes = [];
+let selectedAthleteName = ''; // Variable to store the selected athlete's name
 
 async function fetchAthleteNames() {
-    try {
-      const response = await fetch('http://127.0.0.1:8000/names');
-      if (!response.ok) {
-        throw new Error('Network response was not ok.');
-      }
-      const data = await response.json();
-      athletes = data; 
-      filterAthletes(); 
-    } catch (error) {
-      console.error('Error fetching athlete names:', error);
+  try {
+    const response = await fetch('http://localhost:3000/names'); // Fetch from server endpoint
+    if (!response.ok) {
+      throw new Error('Network response was not ok.');
     }
+    const data = await response.json();
+    athletes = data;
+    filterAthletes();
+  } catch (error) {
+    console.error('Error fetching athlete data:', error);
   }
-fetchAthleteNames(); 
-
+}
 
 function filterAthletes() {
     const searchInput = document.getElementById('searchBar').value.trim(); 
@@ -36,11 +33,13 @@ function filterAthletes() {
         const div = document.createElement('div');
         div.className = 'search-result';
         div.textContent = athlete.name; 
-        div.onclick = () => selectAthlete(athlete);
+        div.onclick = () => selectAthlete(athlete.name);
         searchResults.appendChild(div);
       });
-  }
+}
 
 function selectAthlete(name) {
-  console.log(`Selected athlete: ${name}`);
+  selectedAthleteName = name; 
+  console.log(`Selected athlete: ${selectedAthleteName}`);
+  searchResults.style.display = 'none';
 }

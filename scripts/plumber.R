@@ -4,13 +4,8 @@ setwd("/Users/colinthoman/Desktop/racetimeanalytics")
 library(plumber)
 source("scripts/analysis.R")
 
-root <- pr("scripts/plumber.R")
-root
-root %>% pr_run()
-
 #* @apiTitle Race Time Analytics API
 #* @apiDescription API for interacting with race time analytics
-options("plumber.port" = 8000)
 
 
 #* Names static list
