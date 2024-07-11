@@ -1,7 +1,10 @@
+# analysis.R
+
 setwd("/Users/colinthoman/Desktop/racetimeanalytics")
 load("data/cleaned/cleaned_race_results.rdata")
 load("data/cleaned/cleaned_athletes.rdata")
 load("data/cleaned/cleaned_events.rdata")
+
 library(dplyr)
 library(tidyr)
 library(purrr)
@@ -130,6 +133,7 @@ name_to_id <- function(name) {
     return("Athlete with this name not found in the database") 
   }
 }
+# Takes a name, responds with the athlete ID. Case sensitive.
 
 id_to_name <- function(id) {
   match_idx <- match(id, cleaned_athletes$athlete_id)
@@ -139,4 +143,5 @@ id_to_name <- function(id) {
     return("Athlete with this ID not found in the database") 
   }
 }
+# Takes an athlete ID, responds with the name.
 

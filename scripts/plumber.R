@@ -1,6 +1,12 @@
-setwd("/Users/colinthoman/Desktop/racetimeanalytics/scripts")
+#plumber.R
+
+setwd("/Users/colinthoman/Desktop/racetimeanalytics")
 library(plumber)
-source("analysis.R")
+source("scripts/analysis.R")
+
+root <- pr("scripts/plumber.R")
+root
+root %>% pr_run()
 
 #* @apiTitle Race Time Analytics API
 #* @apiDescription API for interacting with race time analytics
@@ -36,7 +42,6 @@ athlete_trajectory <- function(id1,id2) {
 #* @param min_events minimum events
 #* @param recency_bias a recency bias scalar
 #* @get /compare_trajectory
-
 compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
@@ -99,6 +104,5 @@ id_to_name <- function(id) {
     return("Athlete with this ID not found in the database") 
   }
 }
-
 
 
