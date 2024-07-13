@@ -7,14 +7,47 @@ source("scripts/analysis.R")
 #* @apiTitle Race Time Analytics API
 #* @apiDescription API for interacting with race time analytics
 
-
-#* Names static list
-#* @get /names
-get_names <- function() {
-  return(cleaned_athletes[,2:3])
+#* athletes static list
+#* @get /athletes
+get_athletes <- function() {
+  athletes_years_df <- cleaned_race_results %>%
+    group_by(athlete_id, event) %>%
+    filter(n() >= 3) %>%
+    ungroup() %>%
+    group_by(athlete_id) %>%
+    summarize(
+      first_year = min(format(race_date, format="%y")),
+      last_year = max(format(race_date, format="%y"))
+    ) %>%
+    mutate(
+      years_active = if_else(first_year == last_year,
+                             paste0("'", first_year),
+                             paste0("'", first_year, "-", last_year)
+      )
+    ) %>%
+    select(-first_year, -last_year)
+  athletes <- cleaned_athletes %>%
+    left_join(athletes_years_df, by = "athlete_id") %>%
+    filter(!is.na(years_active))
+  return(athletes)
 }
 
-#* Athlete trajectory
+#* relevant events
+#* @param id athlete_id
+#* @get /relevant_events
+relevant_events <- function(id) {
+  events_subset <- cleaned_race_results %>%
+    filter(athlete_id == id) %>%
+    group_by(athlete_id) %>%
+    filter(n()>=3) %>%
+    pull(event) %>%
+    unique()
+  relevant_events <- sapply(events_subset, id2_to_event_name)
+  class(relevant_events)
+  return(relevant_events)
+}
+
+#* athlete trajectory
 #* @param id1 athlete ID
 #* @param id2 event code
 #* @get /athlete_trajectory
@@ -31,13 +64,14 @@ athlete_trajectory <- function(id1,id2) {
 
 #* Compare trajectory
 #* @param id1 athlete ID
-#* @param id2 event code
+#* @param event_name event name
 #* @param first_year start year
 #* @param last_year end year
 #* @param min_events minimum events
 #* @param recency_bias a recency bias scalar
 #* @get /compare_trajectory
 compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
+  id2 <- event_name_to_id2(event_name)
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
     group_by(athlete_id) %>%
@@ -82,14 +116,14 @@ compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_even
 name_to_id <- function(name) {
   match_idx <- match(name, cleaned_athletes$name)
   if (!is.na(match_idx)) {
-    return(list(cleaned_athletes$athlete_id[match_idx],cleaned_athletes$school[match_idx]))
+    return(as.integer(cleaned_athletes$athlete_id[match_idx]))
   } else {
     return("Athlete with this name not found in the database") 
   }
 }
 
 #* ID to name
-#* @param ID ID
+#* @param id ID
 #* @get /id_to_name
 id_to_name <- function(id) {
   match_idx <- match(id, cleaned_athletes$athlete_id)
@@ -99,5 +133,31 @@ id_to_name <- function(id) {
     return("Athlete with this ID not found in the database") 
   }
 }
+
+#* Event name to ID2
+#* @param event_name name
+#* @get /event_name_to_id
+event_name_to_id2 <- function(event_name) {
+  match_idx <- match(name, events$event_name)
+  if (!is.na(match_idx)) {
+    return(events$event_code)
+      } else {
+    return("Event with this name not found in the database") 
+  }
+}
+
+#* ID2 to event name
+#* @param id2 ID
+#* @get /event_id_to_name
+id2_to_event_name <- function(id2) {
+  match_idx <- match(id2, events$event_code)
+  if (!is.na(match_idx)) {
+    return(events$event_name[match_idx])
+  } else {
+    return("Event with this ID not found in the database") 
+  }
+}
+
+
 
 

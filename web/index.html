@@ -3,19 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Search Menu</title>
+  <title>CBB Trajectory Comparison</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <h1>Euclidean Trajectory Comparison</h1>
+  <h2>Bates, Bowdoin, Colby Track & Field Results</h2>
+
   <div class="search-container">
     <input type="text" id="searchBar" placeholder="Type an athlete's name..." oninput="filterAthletes()">
     <div id="searchResults" class="search-results"></div>
   </div>
-
   <script src="js/search.js"></script>
+  <div class="dropdown-container">
+    <select id="eventDropdown">
+      <option value="">Select an event</option>
+    </select>
+  </div>
   <script>
     fetchAthleteNames();
   </script>
+  <div id="resultsContainer"></div>
+
 
 </body>
 </html>

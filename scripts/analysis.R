@@ -80,6 +80,7 @@ athlete_trajectory <- function(id1,id2) {
   return(trajectory)
 }
 # This an athlete ID and event code and returns a vector of the athlete's results for that event.
+# It also returns the dates.
 
 compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
   event_subset <- cleaned_race_results %>%
@@ -145,4 +146,25 @@ id_to_name <- function(id) {
   }
 }
 # Takes an athlete ID, responds with the name.
+
+event_name_to_id2 <- function(event_name) {
+  match_idx <- match(name, events$event_name)
+  if (!is.na(match_idx)) {
+    return(events$event_code)
+  } else {
+    return("Event with this name not found in the database") 
+  }
+}
+# Takes an event name, returns the code.
+
+id2_to_event_name <- function(id2) {
+  match_idx <- match(id2, cleaned_athletes$event_code)
+  if (!is.na(match_idx)) {
+    return(events$event_name[match_idx])
+  } else {
+    return("Event with this ID not found in the database") 
+  }
+}
+# Takes an event code, returns the name.
+
 

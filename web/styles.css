@@ -1,37 +1,105 @@
 /* styles.css */
-.search-container {
-    position: relative;
-    width: 300px;
-    margin: 0 auto;
-  }
-  
-  #searchBar {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  .search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: #fff;
-    border: 1px solid #ccc;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    max-height: 200px;
-    overflow-y: auto;
-    display: none;
-  }
-  
-  .search-result {
-    padding: 10px;
-    cursor: pointer;
-  }
-  
-  .search-result:hover {
-    background-color: #f0f0f0;
-  }
-  
+
+/* Reset some basic elements */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.6;
+}
+
+h1, h2 {
+  text-align: center;
+  margin-bottom: 1em;
+  color: #333; /* Maintain default color */
+}
+
+.search-container, .dropdown-container {
+  max-width: 600px;
+  margin: 2em auto;
+  padding: 1em;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#searchBar, #eventDropdown {
+  width: 100%;
+  padding: 0.75em;
+  margin-bottom: 0.5em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+#searchBar:focus, #eventDropdown:focus {
+  border-color: #007bff; /* Blue focus color */
+  outline: none;
+}
+
+.search-results {
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-result {
+  padding: 0.75em;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-result:hover {
+  font-weight: bold; /* Bold on hover */
+}
+
+.dropdown-container {
+  max-width: 600px;
+  margin: 2em auto;
+  padding: 1em;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#eventDropdown {
+  width: 100%;
+  padding: 0.75em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+#eventDropdown:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.school-logo {
+  width: 30px; /* Adjust size as needed */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 10px; /* Space between logo and name */
+  vertical-align: middle; /* Align vertically with text */
+}
+
+.athlete-name {
+  margin-right: 10px; /* Space between logo and name */
+  color: #333; /* Maintain default color */
+}
+
+.years-active {
+  margin-left: auto; /* Right align years active */
+  font-style: italic; /* Italicize years active */
+}
