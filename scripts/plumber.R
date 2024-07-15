@@ -38,7 +38,7 @@ get_athletes <- function() {
 relevant_events <- function(id) {
   events_subset <- cleaned_race_results %>%
     filter(athlete_id == id) %>%
-    group_by(athlete_id) %>%
+    group_by(athlete_id, event) %>%
     filter(n()>=3) %>%
     pull(event) %>%
     unique()
@@ -61,7 +61,6 @@ athlete_trajectory <- function(id1,id2) {
   return(trajectory)
 }
 
-
 #* Compare trajectory
 #* @param id1 athlete ID
 #* @param event_name event name
@@ -70,7 +69,7 @@ athlete_trajectory <- function(id1,id2) {
 #* @param min_events minimum events
 #* @param recency_bias a recency bias scalar
 #* @get /compare_trajectory
-compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
+compare_trajectory <- function(id1,event_name,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
   id2 <- event_name_to_id2(event_name)
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
@@ -138,9 +137,9 @@ id_to_name <- function(id) {
 #* @param event_name name
 #* @get /event_name_to_id
 event_name_to_id2 <- function(event_name) {
-  match_idx <- match(name, events$event_name)
+  match_idx <- match(event_name, events$event_name)
   if (!is.na(match_idx)) {
-    return(events$event_code)
+    return(events$event_code[match_idx])
       } else {
     return("Event with this name not found in the database") 
   }

@@ -83,7 +83,7 @@ h1, h2 {
 }
 
 #eventDropdown:focus {
-  border-color: #007bff;
+  border-color: #000000;
   outline: none;
 }
 
@@ -102,4 +102,28 @@ h1, h2 {
 .years-active {
   margin-left: auto; /* Right align years active */
   font-style: italic; /* Italicize years active */
+}
+
+.advanced-settings {
+  max-width: 600px;
+  margin: 2em auto;
+  padding: 1em;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+}
+
+.slider-container label,
+.slider-container span {
+  display: inline-block;
+  margin-right: 10px; /* Adjust margin as needed */
+}
+
+.slider-container input[type="range"] {
+  flex: 1; /* Take remaining space */
 }

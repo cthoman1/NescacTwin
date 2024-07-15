@@ -148,7 +148,7 @@ id_to_name <- function(id) {
 # Takes an athlete ID, responds with the name.
 
 event_name_to_id2 <- function(event_name) {
-  match_idx <- match(name, events$event_name)
+  match_idx <- match(event_name, events$event_name)
   if (!is.na(match_idx)) {
     return(events$event_code)
   } else {

@@ -15,16 +15,36 @@
     <div id="searchResults" class="search-results"></div>
   </div>
   <script src="js/search.js"></script>
+
   <div class="dropdown-container">
     <select id="eventDropdown">
       <option value="">Select an event</option>
     </select>
   </div>
-  <script>
-    fetchAthleteNames();
-  </script>
-  <div id="resultsContainer"></div>
-
+  
+  <div id="advancedSettings" class="advanced-settings" style="display: none;">
+    <h3>Advanced Settings</h3>
+    <div class="slider-container">
+      <label for="startYearSlider">Start Year:</label>
+      <span id="startYearLabel">2006</span>
+      <input type="range" id="startYearSlider" min="2006" max="2025" value="2006" oninput="updateStartYearLabel()">
+    </div>
+    <div class="slider-container">
+      <label for="endYearSlider">End Year:</label>
+      <span id="endYearLabel">2024</span>
+      <input type="range" id="endYearSlider" min="2006" max="2025" value="2025" oninput="updateEndYearLabel()">
+    </div>
+    <div class="slider-container">
+      <label for="minEventsSlider">Minimum Events:</label>
+      <span id="minEventsLabel">3</span>
+      <input type="range" id="minEventsSlider" min="3" max="10" value="1" oninput="updateMinEventsLabel()">
+    </div>
+    <div class="slider-container">
+      <label for="recencyBiasSlider">Recency Bias:</label>
+      <span id="recencyBiasLabel">0</span>
+      <input type="range" id="recencyBiasSlider" min="0" max="4" value="0" oninput="updateRecencyBiasLabel()">
+    </div>
+  </div>
 
 </body>
 </html>
