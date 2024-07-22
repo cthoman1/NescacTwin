@@ -44,13 +44,20 @@ app.get('/compare_trajectory', async (req, res) => {
     const recency_bias = req.query.recency_bias; 
     
     try {
+        console.log('Request parameters:', {
+            athlete_id, 
+            event_name, 
+            first_year, 
+            last_year, 
+            min_events, 
+            recency_bias
+        });
+
         const response = await axios.get(`http://127.0.0.1:8000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&event_name=${encodeURIComponent(event_name)}&first_year=${encodeURIComponent(first_year)}&last_year=${encodeURIComponent(last_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
         
-        // Log the response from the API
 
         res.json(response.data);
     } catch (error) {
-        // Log the error for debugging purposes
         console.error('Error fetching compare trajectory:', error);
         res.status(500).send('Error fetching relevant events');
     }

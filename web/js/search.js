@@ -14,26 +14,22 @@ document.addEventListener('DOMContentLoaded', () => {
     searchBar.addEventListener('input', () => {
         filterAthletes();
         eventDropdown.innerHTML = '<option value="">Select an event</option>';
-        if (searchBar.value.length === 0) {
-          comparatorList.style.display = 'none';
-      } else {
-          comparatorList.style.display = 'block';
-      }
+        hideComparatorList(); // Hide the list on search input change
     });
 
     eventDropdown.addEventListener('change', () => {
-      selectedEvent = eventDropdown.value; 
-      showAdvancedSettings();
-  });
+        selectedEvent = eventDropdown.value;
+        showAdvancedSettings();
+    });
 
-  const sliders = ['startYearSlider', 'endYearSlider', 'minEventsSlider', 'recencyBiasSlider'];
-  sliders.forEach(sliderId => {
-      const sliderElement = document.getElementById(sliderId);
-      sliderElement.addEventListener('input', () => {
-          updateAdvancedSettings(); 
-          fetchComparators(selectedAthleteID, selectedEvent, startYearValue, endYearValue, minEventsValue, recencyBiasValue);
-      });
-  });
+    const sliders = ['startYearSlider', 'endYearSlider', 'minEventsSlider', 'recencyBiasSlider'];
+    sliders.forEach(sliderId => {
+        const sliderElement = document.getElementById(sliderId);
+        sliderElement.addEventListener('input', () => {
+            updateAdvancedSettings();
+            validateAndFetchComparators(); // Validate and fetch comparators
+        });
+    });
 
     fetchAthleteNames();
 });
@@ -135,13 +131,14 @@ function populateDropdown(events) {
     });
 
     dropdownMenu.addEventListener('change', function() {
-      selectedEvent = this.value;
-      fetchComparators(selectedAthleteID,selectedEvent,startYearValue,endYearValue,minEventsValue,recencyBiasValue)
-  });
+        selectedEvent = this.value;
+        showAdvancedSettings();
+        validateAndFetchComparators(); // 
+    });
 }
 
 function getSchoolLogoSrc(schoolName) {
-  return `images/${schoolName.toLowerCase().replace(/ /g, '')}.png`;
+    return `images/${schoolName.toLowerCase().replace(/ /g, '')}.png`;
 }
 
 function showAdvancedSettings() {
@@ -149,41 +146,57 @@ function showAdvancedSettings() {
 }
 
 function updateAdvancedSettings() {
-  startYearValue = document.getElementById('startYearSlider').value;
-  endYearValue = document.getElementById('endYearSlider').value;
-  minEventsValue = document.getElementById('minEventsSlider').value;
-  recencyBiasValue = document.getElementById('recencyBiasSlider').value;
+    startYearValue = document.getElementById('startYearSlider').value;
+    endYearValue = document.getElementById('endYearSlider').value;
+    minEventsValue = document.getElementById('minEventsSlider').value;
+    recencyBiasValue = document.getElementById('recencyBiasSlider').value;
 
-  document.getElementById('startYearLabel').innerText = startYearValue;
-  document.getElementById('endYearLabel').innerText = endYearValue;
-  document.getElementById('minEventsLabel').innerText = minEventsValue;
-  document.getElementById('recencyBiasLabel').innerText = recencyBiasValue;
+    document.getElementById('startYearLabel').innerText = startYearValue;
+    document.getElementById('endYearLabel').innerText = endYearValue;
+    document.getElementById('minEventsLabel').innerText = minEventsValue;
+    document.getElementById('recencyBiasLabel').innerText = recencyBiasValue;
+}
+
+function hideComparatorList() {
+    const comparatorList = document.getElementById('comparatorList');
+    comparatorList.innerHTML = '';
+    comparatorList.style.display = 'none';
 }
 
 function createComparatorList(comparators) {
-  const comparatorList = document.getElementById('comparatorList');
-  comparatorList.innerHTML = '';
+    const comparatorList = document.getElementById('comparatorList');
+    comparatorList.innerHTML = '';
 
-  comparators.forEach((comparator, index) => {
-      const athlete = athletes.find(a => a.athlete_id === comparator.athlete_id);
-      if (athlete) {
-          const listItem = document.createElement('li');
-          listItem.textContent = `${index + 1}. ${athlete.name}`;
-          comparatorList.appendChild(listItem);
-      }
-  });
+    comparatorList.style.display = 'block';   
+    comparators.forEach((comparator, index) => {
+        const athlete = athletes.find(a => a.athlete_id === comparator.athlete_id);
+        if (athlete) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${index + 1}. ${athlete.name}`;
+            comparatorList.appendChild(listItem);
+        }
+    });
+
+    comparatorList.style.display = 'block'; 
 }
 
 async function fetchComparators(athlete_id, event_name, start_year, end_year, min_events, recency_bias) {
-  try {
-      const response = await fetch(`http://127.0.0.1:3000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&event_name=${encodeURIComponent(event_name)}&first_year=${encodeURIComponent(start_year)}&last_year=${encodeURIComponent(end_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
-      if (!response.ok) {
-          throw new Error('Network response was not ok.');
-      }
-      const comparators = await response.json();
-      createComparatorList(comparators)
-  } catch (error) {
-      console.error('Error fetching relevant events:', error);
-  }
+    try {
+        const response = await fetch(`http://127.0.0.1:3000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&event_name=${encodeURIComponent(event_name)}&first_year=${encodeURIComponent(start_year)}&last_year=${encodeURIComponent(end_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok.');
+        }
+        const comparators = await response.json();
+        createComparatorList(comparators);
+    } catch (error) {
+        console.error('Error fetching comparators:', error);
+    }
 }
 
+function validateAndFetchComparators() {
+    if (selectedAthleteID) {
+        fetchComparators(selectedAthleteID, selectedEvent, startYearValue, endYearValue, minEventsValue, recencyBiasValue);
+    } else {
+        hideComparatorList(); 
+    }
+}
