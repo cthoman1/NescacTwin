@@ -21,12 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
       showAdvancedSettings();
   });
 
-    const sliders = ['startYearSlider', 'endYearSlider', 'minEventsSlider', 'recencyBiasSlider'];
-    sliders.forEach(sliderId => {
-        const sliderElement = document.getElementById(sliderId);
-        sliderElement.addEventListener('input', updateSliderLabel);
-        sliderElement.addEventListener('input', updateAdvancedSettings);
-    });
+  const sliders = ['startYearSlider', 'endYearSlider', 'minEventsSlider', 'recencyBiasSlider'];
+  sliders.forEach(sliderId => {
+      const sliderElement = document.getElementById(sliderId);
+      sliderElement.addEventListener('input', () => {
+          updateAdvancedSettings(); 
+          fetchComparators(selectedAthleteID, selectedEvent, startYearValue, endYearValue, minEventsValue, recencyBiasValue);
+      });
+  });
 
     fetchAthleteNames();
 });
@@ -141,24 +143,31 @@ function showAdvancedSettings() {
     document.getElementById('advancedSettings').style.display = 'block';
 }
 
-function updateSliderLabel() {
-    const sliderId = this.id;
-    const labelId = `${sliderId}Label`;
-    document.getElementById(labelId).innerText = this.value;
-}
-
 function updateAdvancedSettings() {
-    startYearValue = document.getElementById('startYearSlider').value;
-    endYearValue = document.getElementById('endYearSlider').value;
-    minEventsValue = document.getElementById('minEventsSlider').value;
-    recencyBiasValue = document.getElementById('recencyBiasSlider').value;
+  startYearValue = document.getElementById('startYearSlider').value;
+  endYearValue = document.getElementById('endYearSlider').value;
+  minEventsValue = document.getElementById('minEventsSlider').value;
+  recencyBiasValue = document.getElementById('recencyBiasSlider').value;
 
-    document.getElementById('startYearLabel').innerText = startYearValue;
-    document.getElementById('endYearLabel').innerText = endYearValue;
-    document.getElementById('minEventsLabel').innerText = minEventsValue;
-    document.getElementById('recencyBiasLabel').innerText = recencyBiasValue;
+  document.getElementById('startYearLabel').innerText = startYearValue;
+  document.getElementById('endYearLabel').innerText = endYearValue;
+  document.getElementById('minEventsLabel').innerText = minEventsValue;
+  document.getElementById('recencyBiasLabel').innerText = recencyBiasValue;
 }
 
+function createComparatorList(comparators) {
+  const comparatorList = document.getElementById('comparatorList');
+  comparatorList.innerHTML = '';
+
+  comparators.forEach((comparator, index) => {
+      const athlete = athletes.find(a => a.athlete_id === comparator.athlete_id);
+      if (athlete) {
+          const listItem = document.createElement('li');
+          listItem.textContent = `${index + 1}. ${athlete.name}`;
+          comparatorList.appendChild(listItem);
+      }
+  });
+}
 
 async function fetchComparators(athlete_id, event_name, start_year, end_year, min_events, recency_bias) {
   try {
@@ -167,9 +176,7 @@ async function fetchComparators(athlete_id, event_name, start_year, end_year, mi
           throw new Error('Network response was not ok.');
       }
       const comparators = await response.json();
-      console.log(athlete_id, event_name, start_year, end_year, min_events, recency_bias)
-      console.log(comparators)
-      //initializeComparators(athlete_id, event_name, start_year, end_year, min_events, recency_bias)
+      createComparatorList(comparators)
   } catch (error) {
       console.error('Error fetching relevant events:', error);
   }

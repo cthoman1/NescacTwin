@@ -11,7 +11,7 @@
   <h2>Bates, Bowdoin, Colby Track & Field Results</h2>
 
   <div class="search-container">
-    <input type="text" id="searchBar" placeholder="Type an athlete's name..." oninput="filterAthletes()">
+    <input type="text" id="searchBar" placeholder="Type an athlete's name..." autocomplete="off" oninput="filterAthletes()">
     <div id="searchResults" class="search-results"></div>
   </div>
   <script src="js/search.js"></script>
@@ -27,24 +27,25 @@
     <div class="slider-container">
       <label for="startYearSlider">Start Year:</label>
       <span id="startYearLabel">2006</span>
-      <input type="range" id="startYearSlider" min="2006" max="2025" value="2006" oninput="updateStartYearLabel()">
+      <input type="range" id="startYearSlider" min="2006" max="2025" value="2006" oninput="updateAdvancedSettings()">
     </div>
     <div class="slider-container">
       <label for="endYearSlider">End Year:</label>
       <span id="endYearLabel">2024</span>
-      <input type="range" id="endYearSlider" min="2006" max="2025" value="2025" oninput="updateEndYearLabel()">
+      <input type="range" id="endYearSlider" min="2006" max="2025" value="2025" oninput="updateAdvancedSettings()">
     </div>
     <div class="slider-container">
       <label for="minEventsSlider">Minimum Events:</label>
       <span id="minEventsLabel">3</span>
-      <input type="range" id="minEventsSlider" min="3" max="10" value="1" oninput="updateMinEventsLabel()">
+      <input type="range" id="minEventsSlider" min="3" max="10" value="1" oninput="updateAdvancedSettings()">
     </div>
     <div class="slider-container">
       <label for="recencyBiasSlider">Recency Bias:</label>
       <span id="recencyBiasLabel">0</span>
-      <input type="range" id="recencyBiasSlider" min="0" max="4" value="0" oninput="updateRecencyBiasLabel()">
+      <input type="range" id="recencyBiasSlider" min="0" max="4" value="0" oninput="updateAdvancedSettings()">
     </div>
   </div>
+  <ul id="comparatorList"></ul>
 
 </body>
 </html>

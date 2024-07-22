@@ -75,23 +75,24 @@ compare_trajectory <- function(id1,event_name,first_year=2005, last_year=2030, m
     filter(event==id2) %>%
     group_by(athlete_id) %>%
     filter(!contains_letters(result)) %>%
-    filter(n() >= min_events) %>%
-    mutate(year = as.integer(substr(race_date, 1, 4))) %>%
-    select(-race_date) %>%
-    filter(year >= first_year & year <= last_year) %>%
-    summarize() %>%
-    pull("athlete_id")
+    filter(n() >= min_events)
   # This creates 'event_subset', a list of athlete_ids in the set with 3+ non-text results for the event.
-  if (!(id1 %in% event_subset)) {
-    print("The athlete ID given does not fit into the parameters given.")
+  if (!(id1 %in% event_subset$athlete_id)) {
+    print("The given athlete does not have enough results for the given event.")
   }
   else {
+    event_subset <- event_subset %>%
+      mutate(year = as.integer(substr(race_date, 1, 4))) %>%
+      select(-race_date) %>%
+      filter(year >= first_year & year <= last_year) %>%
+      summarize() %>%
+      pull("athlete_id")
     event_subset <- data.frame(athlete_id = event_subset, index = NA, dist = NA, pos = NA, dists = NA)
     for (i in seq_along(event_subset$athlete_id)) {
       compare_results <- minimize_distance(
         athlete_trajectory(event_subset$athlete_id[i],id2)[,2],
         athlete_trajectory(id1,id2)[,2],
-        recency_bias
+        as.integer(recency_bias)
       )
       event_subset$index[i] <- as.integer(compare_results[1])
       event_subset$dist[i] <- as.numeric(compare_results[2])
