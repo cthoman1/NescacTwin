@@ -14,6 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     searchBar.addEventListener('input', () => {
         filterAthletes();
         eventDropdown.innerHTML = '<option value="">Select an event</option>';
+        if (searchBar.value.length === 0) {
+          comparatorList.style.display = 'none';
+      } else {
+          comparatorList.style.display = 'block';
+      }
     });
 
     eventDropdown.addEventListener('change', () => {
@@ -136,7 +141,7 @@ function populateDropdown(events) {
 }
 
 function getSchoolLogoSrc(schoolName) {
-    return `images/${schoolName.toLowerCase()}.png`;
+  return `images/${schoolName.toLowerCase().replace(/ /g, '')}.png`;
 }
 
 function showAdvancedSettings() {
