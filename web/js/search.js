@@ -1,4 +1,6 @@
 let athletes = [];
+let events = [];
+const eventMap = {};
 let selectedAthleteName = ''; 
 let selectedAthleteID = ''; 
 let selectedEvent = null;
@@ -18,8 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     eventDropdown.addEventListener('change', () => {
-        selectedEvent = eventDropdown.value;
-        showAdvancedSettings();
+      selectedEvent = eventDropdown.value;
+      console.log(selectedEvent)
+      console.log(getEventCode(selectedEvent))
+      showAdvancedSettings();
     });
 
     const sliders = ['startYearSlider', 'endYearSlider', 'minEventsSlider', 'recencyBiasSlider'];
@@ -27,11 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const sliderElement = document.getElementById(sliderId);
         sliderElement.addEventListener('input', () => {
             updateAdvancedSettings();
-            validateAndFetchComparators(); // Validate and fetch comparators
+            validateAndFetchComparators(); 
         });
     });
 
     fetchAthleteNames();
+    fetchEventCodes();
 });
 
 async function fetchAthleteNames() {
@@ -46,6 +51,29 @@ async function fetchAthleteNames() {
     } catch (error) {
         console.error('Error fetching athlete data:', error);
     }
+}
+
+async function fetchEventCodes() {
+  try {
+      const response = await fetch('http://127.0.0.1:3000/events');
+      if (!response.ok) {
+          throw new Error('Network response was not ok.');
+      }
+      const data = await response.json();
+      events = data;
+  } catch (error) {
+      console.error('Error fetching event codes:', error);
+  }
+}
+
+function getEventCode(eventName) {
+  const event = events.find(e => e.event_name === eventName);
+  return event ? event.event_code : null; 
+}
+
+function getEventName(eventCode) {
+  const event = events.find(e => e.event_code === eventCode);
+  return event ? event.event_name : null; 
 }
 
 function filterAthletes() {
@@ -133,7 +161,7 @@ function populateDropdown(events) {
     dropdownMenu.addEventListener('change', function() {
         selectedEvent = this.value;
         showAdvancedSettings();
-        validateAndFetchComparators(); // 
+        validateAndFetchComparators();  
     });
 }
 
@@ -168,11 +196,11 @@ function createComparatorList(comparators) {
     comparatorList.innerHTML = '';
 
     comparatorList.style.display = 'block';   
-    comparators.forEach((comparator, index) => {
+    comparators.forEach((comparator) => {
         const athlete = athletes.find(a => a.athlete_id === comparator.athlete_id);
         if (athlete) {
             const listItem = document.createElement('li');
-            listItem.textContent = `${index + 1}. ${athlete.name}`;
+            listItem.textContent = `${athlete.name}`;
             comparatorList.appendChild(listItem);
         }
     });

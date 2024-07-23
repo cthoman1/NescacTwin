@@ -32,6 +32,12 @@ get_athletes <- function() {
   return(athletes)
 }
 
+#* events static list
+#* @get /events
+get_events <- function() {
+  return(events)
+}
+
 #* relevant events
 #* @param id athlete_id
 #* @get /relevant_events
@@ -141,7 +147,7 @@ event_name_to_id2 <- function(event_name) {
   match_idx <- match(event_name, events$event_name)
   if (!is.na(match_idx)) {
     return(events$event_code[match_idx])
-      } else {
+  } else {
     return("Event with this name not found in the database") 
   }
 }
@@ -157,7 +163,3 @@ id2_to_event_name <- function(id2) {
     return("Event with this ID not found in the database") 
   }
 }
-
-
-
-

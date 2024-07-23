@@ -1,6 +1,5 @@
 /* styles.css */
 
-/* Reset some basic elements */
 * {
   margin: 0;
   padding: 0;
@@ -16,8 +15,8 @@ body {
 
 h1, h2 {
   text-align: center;
-  margin-bottom: 1em;
-  color: #333; /* Maintain default color */
+  margin-bottom: .25em;
+  color: #333; 
 }
 
 .search-container, .dropdown-container {
@@ -31,7 +30,7 @@ h1, h2 {
 
 #searchBar, #eventDropdown {
   width: 100%;
-  padding: 0.75em;
+  padding: 0.5em;
   margin-bottom: 0.5em;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -40,7 +39,7 @@ h1, h2 {
 }
 
 #searchBar:focus, #eventDropdown:focus {
-  border-color: #007bff; /* Blue focus color */
+  border-color: #007bff; 
   outline: none;
 }
 
@@ -61,7 +60,7 @@ h1, h2 {
 }
 
 .search-result:hover {
-  font-weight: bold; /* Bold on hover */
+  font-weight: bold;
 }
 
 .dropdown-container {
@@ -88,20 +87,20 @@ h1, h2 {
 }
 
 .school-logo {
-  width: 30px; /* Adjust size as needed */
-  height: auto; /* Maintain aspect ratio */
-  margin-right: 10px; /* Space between logo and name */
-  vertical-align: middle; /* Align vertically with text */
+  width: 30px; 
+  height: auto; 
+  margin-right: 10px; 
+  vertical-align: middle; 
 }
 
 .athlete-name {
-  margin-right: 10px; /* Space between logo and name */
-  color: #333; /* Maintain default color */
+  margin-right: 10px; 
+  color: #333;
 }
 
 .years-active {
-  margin-left: auto; /* Right align years active */
-  font-style: italic; /* Italicize years active */
+  margin-left: auto; 
+  font-style: italic; 
 }
 
 .advanced-settings {
@@ -121,9 +120,35 @@ h1, h2 {
 .slider-container label,
 .slider-container span {
   display: inline-block;
-  margin-right: 10px; /* Adjust margin as needed */
+  margin-right: 10px; 
 }
 
 .slider-container input[type="range"] {
-  flex: 1; /* Take remaining space */
+  flex: 1; 
+}
+
+#comparatorList {
+  max-width: 600px;
+  margin: .5em auto;
+  padding: 0;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  list-style-type: decimal;
+}
+
+#comparatorList li {
+  padding: 0.25em;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s, font-weight 0.3s, color 0.3s;
+}
+
+#comparatorList li:last-child {
+  border-bottom: none; /* Remove border from the last item */
+}
+
+#comparatorList li:hover {
+  font-weight: bold; /* Bold on hover */
+  background-color: #f0f0f0; /* Light background color on hover */
 }

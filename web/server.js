@@ -25,6 +25,15 @@ app.get('/athletes', async (req, res) => {
     }
 });
 
+app.get('/events', async (req, res) => {
+    try {
+        const response = await axios.get('http://127.0.0.1:8000/events');
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).send('Error fetching event data');
+    }
+});
+
 app.get('/relevant_events', async (req, res) => {
     const athlete_id = req.query.athlete_id; 
     try {
@@ -44,18 +53,7 @@ app.get('/compare_trajectory', async (req, res) => {
     const recency_bias = req.query.recency_bias; 
     
     try {
-        console.log('Request parameters:', {
-            athlete_id, 
-            event_name, 
-            first_year, 
-            last_year, 
-            min_events, 
-            recency_bias
-        });
-
         const response = await axios.get(`http://127.0.0.1:8000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&event_name=${encodeURIComponent(event_name)}&first_year=${encodeURIComponent(first_year)}&last_year=${encodeURIComponent(last_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
-        
-
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching compare trajectory:', error);
