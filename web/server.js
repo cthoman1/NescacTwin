@@ -9,7 +9,6 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
-
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);
 });
@@ -46,18 +45,31 @@ app.get('/relevant_events', async (req, res) => {
 
 app.get('/compare_trajectory', async (req, res) => {
     const athlete_id = req.query.id1; 
-    const event_name = req.query.event_name; 
+    const id2 = req.query.id2; 
     const first_year = req.query.first_year; 
     const last_year = req.query.last_year; 
     const min_events = req.query.min_events; 
     const recency_bias = req.query.recency_bias; 
     
     try {
-        const response = await axios.get(`http://127.0.0.1:8000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&event_name=${encodeURIComponent(event_name)}&first_year=${encodeURIComponent(first_year)}&last_year=${encodeURIComponent(last_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
+        const response = await axios.get(`http://127.0.0.1:8000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&id2=${encodeURIComponent(id2)}&first_year=${encodeURIComponent(first_year)}&last_year=${encodeURIComponent(last_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
         res.json(response.data);
     } catch (error) {
         console.error('Error fetching compare trajectory:', error);
         res.status(500).send('Error fetching relevant events');
+    }
+});
+
+app.get('/athlete_trajectory', async (req, res) => {
+    const athlete_id = req.query.id1; 
+    const id2 = req.query.id2; 
+    
+    try {
+        const response = await axios.get(`http://127.0.0.1:8000/athlete_trajectory?id1=${encodeURIComponent(athlete_id)}&id2=${encodeURIComponent(id2)}`);
+        res.json(response.data);
+    } catch (error) {
+        console.error('Error fetching compare trajectory:', error);
+        res.status(500).send('Error fetching athlete trajectory');
     }
 });
 

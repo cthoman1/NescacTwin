@@ -1,7 +1,8 @@
+// search.js
+
 let athletes = [];
 let events = [];
-const eventMap = {};
-let selectedAthleteName = ''; 
+let selectedAthleteName = '';
 let selectedAthleteID = ''; 
 let selectedEvent = null;
 let startYearValue = 2006; 
@@ -16,14 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     searchBar.addEventListener('input', () => {
         filterAthletes();
         eventDropdown.innerHTML = '<option value="">Select an event</option>';
-        hideComparatorList(); // Hide the list on search input change
-    });
-
-    eventDropdown.addEventListener('change', () => {
-      selectedEvent = eventDropdown.value;
-      console.log(selectedEvent)
-      console.log(getEventCode(selectedEvent))
-      showAdvancedSettings();
+        hideComparatorList(); 
     });
 
     const sliders = ['startYearSlider', 'endYearSlider', 'minEventsSlider', 'recencyBiasSlider'];
@@ -64,11 +58,6 @@ async function fetchEventCodes() {
   } catch (error) {
       console.error('Error fetching event codes:', error);
   }
-}
-
-function getEventCode(eventName) {
-  const event = events.find(e => e.event_name === eventName);
-  return event ? event.event_code : null; 
 }
 
 function getEventName(eventCode) {
@@ -154,12 +143,12 @@ function populateDropdown(events) {
     events.forEach(event => {
         const option = document.createElement('option');
         option.value = event; 
-        option.textContent = event;
+        option.textContent = getEventName(event);
         dropdownMenu.appendChild(option);
     });
 
     dropdownMenu.addEventListener('change', function() {
-        selectedEvent = this.value;
+        selectedEvent = (this.value);
         showAdvancedSettings();
         validateAndFetchComparators();  
     });
@@ -194,23 +183,78 @@ function hideComparatorList() {
 function createComparatorList(comparators) {
     const comparatorList = document.getElementById('comparatorList');
     comparatorList.innerHTML = '';
-
-    comparatorList.style.display = 'block';   
+  
+    comparatorList.style.display = 'block';
+  
+    let hoveredComparator = null;
+    let clickedComparator = null;
+  
+    function updateComparator() {
+      let comparator = null;
+      if (hoveredComparator !== null) {
+        comparator = hoveredComparator;
+      } else if (clickedComparator !== null) {
+        comparator = clickedComparator;
+      }
+      if (comparator) {
+          preparePlotData(comparator);
+      }
+    }
+  
     comparators.forEach((comparator) => {
         const athlete = athletes.find(a => a.athlete_id === comparator.athlete_id);
         if (athlete) {
             const listItem = document.createElement('li');
             listItem.textContent = `${athlete.name}`;
+            listItem.style.cursor = 'pointer';
+  
+            listItem.addEventListener('mouseover', function() {
+              hoveredComparator = comparator;
+              updateComparator();
+            });
+  
+            listItem.addEventListener('mouseout', function() {
+              hoveredComparator = null;
+              updateComparator();
+            });
+  
+            listItem.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const allListItems = comparatorList.querySelectorAll('li');
+                allListItems.forEach(item => {
+                    item.classList.remove('selected');
+                    item.style.fontWeight = 'normal';
+                });
+  
+                listItem.classList.add('selected');
+                listItem.style.fontWeight = 'bold';
+  
+                clickedComparator = comparator;
+                updateComparator();
+            });
+  
             comparatorList.appendChild(listItem);
         }
     });
-
-    comparatorList.style.display = 'block'; 
+  
+    document.addEventListener('click', function(event) {
+      if (!comparatorList.contains(event.target)) {
+        clickedComparator = null;
+        const allListItems = comparatorList.querySelectorAll('li');
+        allListItems.forEach(item => {
+            item.classList.remove('selected');
+            item.style.fontWeight = 'normal';
+        });
+        updateComparator();
+      }
+    });
+  
+    comparatorList.style.display = 'block';
 }
 
-async function fetchComparators(athlete_id, event_name, start_year, end_year, min_events, recency_bias) {
+async function fetchComparators(athlete_id, id2, start_year, end_year, min_events, recency_bias) {
     try {
-        const response = await fetch(`http://127.0.0.1:3000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&event_name=${encodeURIComponent(event_name)}&first_year=${encodeURIComponent(start_year)}&last_year=${encodeURIComponent(end_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
+        const response = await fetch(`http://127.0.0.1:3000/compare_trajectory?id1=${encodeURIComponent(athlete_id)}&id2=${encodeURIComponent(id2)}&first_year=${encodeURIComponent(start_year)}&last_year=${encodeURIComponent(end_year)}&min_events=${encodeURIComponent(min_events)}&recency_bias=${encodeURIComponent(recency_bias)}`);
         if (!response.ok) {
             throw new Error('Network response was not ok.');
         }
@@ -227,4 +271,33 @@ function validateAndFetchComparators() {
     } else {
         hideComparatorList(); 
     }
+}
+
+async function fetchTrajectory(athlete_id, id2) {
+  try {
+      const response = await fetch(`http://127.0.0.1:3000/athlete_trajectory?id1=${encodeURIComponent(athlete_id)}&id2=${encodeURIComponent(id2)}`);
+      if (!response.ok) {
+          throw new Error('Network response was not ok.');
+      }
+      const trajectory = await response.json();
+      return trajectory;
+  } catch (error) {
+      console.error('Error fetching athlete trajectories:', error);
+  }
+}
+
+async function preparePlotData(comparator) {
+    const athleteTrajectory = await fetchTrajectory(selectedAthleteID, selectedEvent);
+    const comparatorTrajectory = await fetchTrajectory(comparator.athlete_id, selectedEvent);
+    const comparatorName = athletes.find(a => a.athlete_id === comparator.athlete_id).name;
+    const dists = comparator.dists;
+    const pos = comparator.pos;
+    const selectedEventName = getEventName(Number(selectedEvent));
+    plotData(selectedAthleteName,
+        comparatorName, 
+        selectedEventName, 
+        athleteTrajectory, 
+        comparatorTrajectory, 
+        dists, 
+        pos)
 }

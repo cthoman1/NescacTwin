@@ -48,9 +48,7 @@ relevant_events <- function(id) {
     filter(n()>=3) %>%
     pull(event) %>%
     unique()
-  relevant_events <- sapply(events_subset, id2_to_event_name)
-  class(relevant_events)
-  return(relevant_events)
+  return(events_subset)
 }
 
 #* athlete trajectory
@@ -61,7 +59,7 @@ athlete_trajectory <- function(id1,id2) {
   trajectory <- cleaned_race_results %>%
     filter(athlete_id == id1 & event == id2) %>%
     arrange(race_date) %>%
-    select(-athlete_id, -athlete_id, -event) %>%
+    select(-athlete_id, -event) %>%
     filter(!contains_letters(result)) %>%
     mutate(result = as.numeric(result))
   return(trajectory)
@@ -69,14 +67,13 @@ athlete_trajectory <- function(id1,id2) {
 
 #* Compare trajectory
 #* @param id1 athlete ID
-#* @param event_name event name
+#* @param id2 event code
 #* @param first_year start year
 #* @param last_year end year
 #* @param min_events minimum events
 #* @param recency_bias a recency bias scalar
 #* @get /compare_trajectory
-compare_trajectory <- function(id1,event_name,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
-  id2 <- event_name_to_id2(event_name)
+compare_trajectory <- function(id1,id2,first_year=2005, last_year=2030, min_events=3,recency_bias=0) {
   event_subset <- cleaned_race_results %>%
     filter(event==id2) %>%
     group_by(athlete_id) %>%
@@ -113,53 +110,5 @@ compare_trajectory <- function(id1,event_name,first_year=2005, last_year=2030, m
     return(closest_trajectories)
     # This appends the three outputs from distance minimization to the IDs in 'event_subset'.
     # It then sorts them based on distance and takes the top ten (non-self) results.
-  }
-}
-
-#* Name to ID
-#* @param name Name
-#* @get /name_to_id
-name_to_id <- function(name) {
-  match_idx <- match(name, cleaned_athletes$name)
-  if (!is.na(match_idx)) {
-    return(as.integer(cleaned_athletes$athlete_id[match_idx]))
-  } else {
-    return("Athlete with this name not found in the database") 
-  }
-}
-
-#* ID to name
-#* @param id ID
-#* @get /id_to_name
-id_to_name <- function(id) {
-  match_idx <- match(id, cleaned_athletes$athlete_id)
-  if (!is.na(match_idx)) {
-    return(cleaned_athletes$name[match_idx])
-  } else {
-    return("Athlete with this ID not found in the database") 
-  }
-}
-
-#* Event name to ID2
-#* @param event_name name
-#* @get /event_name_to_id
-event_name_to_id2 <- function(event_name) {
-  match_idx <- match(event_name, events$event_name)
-  if (!is.na(match_idx)) {
-    return(events$event_code[match_idx])
-  } else {
-    return("Event with this name not found in the database") 
-  }
-}
-
-#* ID2 to event name
-#* @param id2 ID
-#* @get /event_id_to_name
-id2_to_event_name <- function(id2) {
-  match_idx <- match(id2, events$event_code)
-  if (!is.na(match_idx)) {
-    return(events$event_name[match_idx])
-  } else {
-    return("Event with this ID not found in the database") 
   }
 }
