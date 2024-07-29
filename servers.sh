@@ -4,7 +4,7 @@
 cd /Users/colinthoman/Desktop/racetimeanalytics
 
 #Start plumber API
-Rscript scripts/api.R &
+Rscript r/api.R &
 
 #Go back to project directory
 cd web

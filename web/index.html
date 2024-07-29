@@ -9,12 +9,14 @@
 <body>
   <h1>Euclidean Trajectory Comparison</h1>
   <h2>Bates, Bowdoin, Colby Track & Field Results</h2>
+  
+  <script type="module" src="src/search.js"></script>
 
   <div class="search-container">
-    <input type="text" id="searchBar" placeholder="Type an athlete's name..." autocomplete="off" oninput="filterAthletes()">
+    <input type="text" id="searchBar" placeholder="Type an athlete's name..." autocomplete="off" >
     <div id="searchResults" class="search-results"></div>
   </div>
-  <script src="js/search.js"></script>
+
 
   <div class="dropdown-container">
     <select id="eventDropdown">
@@ -48,8 +50,9 @@
 
   <ul id="comparatorList"></ul>
 
-<script src="js/plot.js"></script>
-
+<div>
+  <canvas id = "plot"></canvas>
+</div>
 
 </body>
 </html>
